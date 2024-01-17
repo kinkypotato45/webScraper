@@ -6,25 +6,41 @@ html_text = requests.get(
     "https://papyri.info/search?INT=on&DATE_MODE=LOOSE&DOCS_PER_PAGE=4000&LANG=grc"
 ).text
 soup = BeautifulSoup(html_text, "lxml")
+# results = soup.find_all("tr", class_="result-record")
 results = soup.find_all("tr", class_="result-record")
-firstresult = soup.find("tr", class_="result-record")
-# print(firstresult)
-print(firstresult.find("td", class_="identifier"))
 frame = pd.read_csv("dataset.csv")
-# for result in results:
-#     Identifier = result.find("")
-# print(results)
-# frame = pd.DataFrame(
-#     columns=[
-#         "Identifier",
-#         "Location",
-#         "Date",
-#         "Languages",
-#         "medium",
-#         "transcription",
-#         "translation",
-#         "url",
-#         "image_id",
-#     ]
-# )
-# frame.to_csv("dataset.csv")
+imageid = 0
+for result in results:
+    id = result.find("td", class_="identifier")
+    # print(id)
+    url = result.find("a")["href"]
+    location = result.find("td", class_="display-place").text
+    date = result.find("td", class_="display-date").text
+    language = result.find("td", class_="language").text
+
+    identifier = id["title"]
+    if identifier in frame["Identifier"].values:
+        continue
+    df = {
+        "Identifier": identifier,
+        "Location": location,
+        "Date": date,
+        "Languages": language,
+        "medium": "",
+        "transcription": "",
+        "translation": "",
+        "url": url,
+        "image_id": str(imageid),
+    }
+    imageid += 1
+    frame = frame._append(df, ignore_index=True)
+    # frame.reset_index()
+
+    # print(identifier)
+    # print(url)
+    # print(location)
+    # print(date)
+    # print(language)
+
+print(frame)
+frame.to_csv("dataset.csv", index=False)
