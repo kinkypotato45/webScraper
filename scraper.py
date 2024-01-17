@@ -29,7 +29,7 @@ for result in results:
         "medium": "",
         "transcription": "",
         "translation": "",
-        "url": url,
+        "url": "https://papyri.info" + url,
         "image_id": str(imageid),
     }
     imageid += 1
